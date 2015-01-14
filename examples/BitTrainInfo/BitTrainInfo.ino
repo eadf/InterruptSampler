@@ -20,6 +20,7 @@ void setup()
     
     is_printSampleStatistics();
     Serial.println();
+    Serial.println("Now checking the data line.");
     uint32_t gap = (uint32_t) (0.90*is_maxPeriod);
     for (int i=0; i<20; i++) {
       Serial.print("Started looking for the number of bits with "); Serial.print(gap); Serial.println( " micros 'between block' period");
