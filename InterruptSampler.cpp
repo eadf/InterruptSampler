@@ -15,7 +15,11 @@ volatile uint8_t is_bitBuffer[512]; // 4095 bits sample buffer
 volatile uint32_t is_endOfBlockPeriod = 0xFFFFFFFF;  // This is the "end of block" marker
 volatile uint16_t is_bitsToLookFor = 0; 
 
+#ifdef __AVR__
 #define PIN3IN ((PIND>>3)&1)
+#else
+#define PIN3IN digitalRead(3)
+#endif
 
 typedef enum {
   LOOKING_FOR_FIRST_GAP=0,
@@ -224,7 +228,11 @@ void is_startInterrupt1(bool onRising) {
   is_samplerState = LOOKING_FOR_FIRST_GAP;
   is_lastTimeStamp = micros();
   is_noOfMisfire = 0;
+#if defined (__arm__) && defined (__SAM3X8E__) // Arduino Due compatible
+  attachInterrupt(2, is_sampleInterrupt1, onRising?RISING:FALLING); // 2 is pin number
+#else
   attachInterrupt(0, is_sampleInterrupt1, onRising?RISING:FALLING);
+#endif
 }
 
 
@@ -236,7 +244,11 @@ void is_startInterrupt2(uint32_t endOfBlockPeriod, bool onRising) {
   is_samplerState = LOOKING_FOR_FIRST_GAP;
   is_lastTimeStamp = micros();
   is_noOfMisfire = 0;
+#if defined (__arm__) && defined (__SAM3X8E__) // Arduino Due compatible  
+  attachInterrupt(2, is_sampleInterrupt2, onRising?RISING:FALLING); // 2 is pin number
+#else
   attachInterrupt(0, is_sampleInterrupt2, onRising?RISING:FALLING);
+#endif
 }
 
 void is_startInterrupt3(uint32_t endOfBlockPeriod, uint16_t bitsToLookFor, bool onRising) {
@@ -248,7 +260,11 @@ void is_startInterrupt3(uint32_t endOfBlockPeriod, uint16_t bitsToLookFor, bool 
   is_samplerState = LOOKING_FOR_SECOND_GAP;
   is_lastTimeStamp = micros();
   is_noOfMisfire = 0;
+#if defined (__arm__) && defined (__SAM3X8E__) // Arduino Due compatible
+  attachInterrupt(2, is_sampleInterrupt3, onRising?RISING:FALLING); // 2 is pin number
+#else
   attachInterrupt(0, is_sampleInterrupt3, onRising?RISING:FALLING);
+#endif
 }
 
 void is_stopInterrupt(void) {
