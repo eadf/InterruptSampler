@@ -21,6 +21,8 @@ volatile uint16_t is_bitsToLookFor = 0;
 #define PIN3IN digitalRead(3)
 #endif
 
+#define printf Serial.print
+
 typedef enum {
   LOOKING_FOR_FIRST_GAP=0,
   LOOKING_FOR_SECOND_GAP,
@@ -29,27 +31,33 @@ typedef enum {
 
 static volatile SamplerState is_samplerState = LOOKING_FOR_FIRST_GAP;
 
-uint32_t is_assembleResult(int fromBit, int toBit) {
+uint32_t is_assembleResult(int fromBit, int toBit, bool duplicateHighBit) {
+  // non byte aligned slice - slow and inefficient
   
   if (toBit >= is_currentBit) {
     toBit = is_currentBit-1;
   }
-  // non byte aligned slice - slow and inefficient
+  bool bitValue = false;
   uint32_t tmp = 0;
   if (fromBit <= toBit) {
     if (toBit - fromBit > 32) {
-      Serial.println("toBit - fromBit > 32");
+      printf("Error: toBit - fromBit > 32");
       return tmp;
     }
-    for (int aBit=toBit; aBit>=fromBit; aBit--){
-      tmp |= ((is_bitBuffer[(aBit>>3)]) >> ( (aBit & 0x7)) & 1);
-      //Serial.println(tmp,BIN);
-      if ( aBit-1 >= fromBit){
-        tmp= tmp << 1;
+    int aBit=0;
+    for (aBit=toBit; aBit>=fromBit; aBit--){
+      bitValue = ((is_bitBuffer[(aBit>>3)]) >> ( (aBit & 0x7)) & 1);
+      if (bitValue) {
+        tmp |= bit(aBit-fromBit);
+      } else {
+        tmp &= ~bit(aBit-fromBit);
       }
     }
   } else {
-    Serial.println("not implemented");
+    printf("fromBit <= toBit: not implemented\n");
+  }
+  if (duplicateHighBit && (tmp & bit(toBit-fromBit))) {
+    tmp |= 0xFFFFFFFF << (toBit-fromBit);
   }
   return tmp;
 }

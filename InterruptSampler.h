@@ -24,9 +24,10 @@ bool is_isDone(void);
 /**
  * assembles a uint32_t from the sampled result.
  * fromBit and toBit are inclusive and start from bit 0.
- * e.g. is_assembleResult(0,1) will look at two bits
+ * e.g. is_assembleResult(0,1, true) will look at two bits.
+ * The duplicateHighBit parameter defines how the 'overflow' bits should be handled.
  */
-uint32_t is_assembleResult(int fromBit, int toBit);
+uint32_t is_assembleResult(int fromBit, int toBit, bool duplicateHighBit);
 
 void is_printBuffer(uint16_t untilBit);
 void is_printBinary8(uint8_t data);
