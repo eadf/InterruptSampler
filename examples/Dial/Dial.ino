@@ -1,7 +1,7 @@
 #include "InterruptSampler.h"
 
 /**
- * This piece of code displays the value of a cheap Chinese digital dial conneced to pin 2(clock) and pin3 (data)
+ * This piece of code displays the output of a cheap Chinese digital dial connected to pin 2(clock) and pin3 (data)
  * The dial seems to operate on such a speed that a 3.3V 8Mhz Arduino Pro Mini can't keep up.
  * So i've tested this on a Arduion Due.
  */
@@ -16,7 +16,11 @@ void setup()
   pinMode(3, INPUT);
   pinMode(2, INPUT);
   Serial.begin(9600);
-  is_startInterrupt3(BIT_TRAIN_IDLE_PERIOD, 24, ON_RISING);
+  if (NEGATIVE_LOGIC) {
+    is_startInterrupt3(BIT_TRAIN_IDLE_PERIOD, NUMBER_OF_BITS, !ON_RISING);
+  } else {
+    is_startInterrupt3(BIT_TRAIN_IDLE_PERIOD, NUMBER_OF_BITS, ON_RISING);
+  }
 }
 
 float adjustForDial(uint32_t val) {
